@@ -1,13 +1,13 @@
 # Jenkins-OTEL-Notes-Gists
 
-1. How can we use the Jenkins OTEL plugin to GDI to Splunk?
-    - [Jenkins OTEL plugin](https://plugins.jenkins.io/opentelemetry/#getting-started) can be used with an [OTEL collector](https://github.com/signalfx/splunk-otel-collector) to send to SFX APM, SFX Log Observer, and Splunk HEC
+1. How can we use the Jenkins OTEL plugin to get data in to Splunk?
+    - [Jenkins OTEL plugin](https://plugins.jenkins.io/opentelemetry/#getting-started) (by Cyrille Le Clerc) can be used with an [OTEL collector](https://github.com/signalfx/splunk-otel-collector) to send to Splunk Observability Cloud (formerly SignalFx) APM, Splunk Log Observer, and Splunk HEC
         - Quick linux install: 
             ```
               curl -sSL https://dl.signalfx.com/splunk-otel-collector.sh > /tmp/splunk-otel-collector.sh && \
               sudo sh /tmp/splunk-otel-collector.sh --realm $SPLUNK_REALM -- $SPLUNK_ACCESS_TOKEN
             ```
-    - For traditional Build Logs would want to run an OTEL agent on the Jenkins instance and send logs through OTEL
+    - **NOTE:** For traditional Build Logs it is possible to run an OTEL agent on the Jenkins instance and send build logs through OTEL as well
 
 2. What does the OTEL config look like? 
     - Can setup for just HEC, just Log Observer, or BOTH. Config below is for both
@@ -22,7 +22,7 @@
                 value: test
                 action: insert
             ```
-        - Also pay attention to the dual exporters for our logs. One sending to SFX Log Observer and the other to HEC for Splunk Enterprise
+        - Also pay attention to the dual exporters for our logs. One sending to Splunk Log Observer and the other to HEC for Splunk Enterprise
             ```
             # Logs
             splunk_hec/log_observer:
@@ -48,7 +48,6 @@
                   - attributes  
                   - batch
                   - resourcedetection
-                  #- resource/add_environment
                   exporters: [sapm, signalfx, splunk_hec, splunk_hec/log_observer]
             ```
 3. OTEL collector is setup. I've installed the Jenkins OTEL plug using the Jenkins Plugin Manager. How do I configure the Jenkins OTEL plugin?
@@ -68,25 +67,25 @@
             ```
 
     - Settings in Jenkins Otel Collector  
-        ```
-        **OTLP GRPC Endpoint**: http://34.125.182.158:4317
-        **Authentication**: No Authentication
-        **Visualisation**:
+        - **OTLP GRPC Endpoint**: http://34.125.182.158:4317
+        - **Authentication**: No Authentication (or choose appropriate options for your tokens)
+        - **Visualisation**:
             - **Custom Observability Backend**
                 - **Name**: `Splunk APM (SignalFX)`
                 - **Trace visualisation URL template**: https://app.us1.signalfx.com/#/apm/traces/${traceId}
-        ```
+        
+    - Click the `Advanced...` button to open up dialogs to set an APM `Service name` and `Service namespace`
 
 4. Once traces are going in you should see your Jenkins Instance as an APM Service.   
     - Each of the Pipelines running in Jenkins will be treated as a Service Endpoint
-    - A basic [SFX Jenkins dashboard](./dashboards/Jenkins-Service-Endpoint-OTEL-APM.json) is also available as a starting point
+    - A basic [Jenkins dashboard](./dashboards/Jenkins-Service-Endpoint-OTEL-APM.json) is included in this repository as a starting point
         1. Filter by your environment variable
         2. Filter by your Jenkins Service Name
         3. Filter by your Pipeline (or * for all pipelines)
         4. Edit Event Overlay to match detectors (I.E. Detector for build failures)
     ![Service Endpoint Dashboard](./images/Jenkins-Service-Endpoint-OTEL-APM.png)
 
-5. Log Observer can be leveraged to help get a better overview of our Overall Jenkins Health
+5. Splunk Log Observer can be leveraged to help get a better overview of the Overall Jenkins Health and specific metrics around individual steps.
     - For step and job success information [enable these metrics through Log Observer](./images/Jenkins-LogObserver-Setup.png).
         1. Ingest your logs into Log Observer (see above OTEL configuration files)
         2. Create metrics for `jenkins.run.status` and `jenkins.pipeline.step.status`
@@ -102,11 +101,28 @@
             Operation: count
             Dimensions : ["attributes.jenkins.pipeline.step.type","status.code","environment","service.name"]
             ```
-    1. Filter by environment
-    2. Filter by Service Name
-    3. For status indicators on charts add your Detector to the Event Overlay
+    1. Import the included [Jenkins Health Overview Dashboard](./dashboards/Jenkins-Health-Overview-OTEL-LogObserver.json)
+    2. Filter by environment
+    3. Filter by Service Name
     ![Jenkins Health Overview](images/Jenkins-Overview-OTEL-LogObserver.png)
 
+6. Setup a detector on Jenkins deployments using OTEL data. 
+    1. Create a detector [using the API](https://docs.splunk.com/Observability/alerts-detectors-notifications/create-detectors-for-alerts.html#create-via-api) to leverage a SignalFlow query.
+        - Example SignalFlow for Service Name: `jenkins-service` and Workflow (pipeline): `Big Pipeline` in the `test` environment:
+        ```
+        from signalfx.detectors.apm.workflow_errors.static_v2 import static as workflow_errors_sudden_static_v2
+        workflow_errors_sudden_static_v2.detector(filter_=((filter('sf_workflow', 'jenkins-service:Big Pipeline'))) and (filter('sf_environment', 'test')), custom_filter=None, current_window='20m', fire_rate_threshold=0.1, clear_rate_threshold=0, attempt_threshold=1).publish('Big Pipeline Build Failure - APM')
+        ```
+    2. Add your detector to the Event Overlay for your dashboards and charts!
+        - Dashboard Overlay Example:
+        ![Add Detector Events to Dashboard](./images/Dashboard-Detector-Events.png)
+        - Single Chart Overlay Example:
+            1. In your Chart click `Link Detector
+            2. Type your Detector name into the box and select it
+            ![Link a Detector in your Chart](./images/Link-Detector.png)
+            3. Click the `Chart Options` tab and select `Show events as lines` and `Show data markers` 
+            ![Add Event Lines and Data Markers to Chart](./images/Chart-Options-Markers.png)
+    - **PRO-TIP:** Detectors can also be added for another team's deployments if the health of your own could be impacted by a failed deployment.
 
 
 
