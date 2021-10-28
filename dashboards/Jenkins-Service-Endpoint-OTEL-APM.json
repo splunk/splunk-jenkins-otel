@@ -1,0 +1,1056 @@
+{
+  "chartExports": [
+    {
+      "chart": {
+        "created": 0,
+        "creator": null,
+        "customProperties": {},
+        "description": "",
+        "id": "FAZXlLVAwAY",
+        "lastUpdated": 0,
+        "lastUpdatedBy": null,
+        "name": "Jobs Summary (1d)",
+        "options": {
+          "colorBy": "Metric",
+          "colorScale2": null,
+          "hideMissingValues": false,
+          "legendOptions": {
+            "fields": [
+              {
+                "enabled": false,
+                "property": "sf_originatingMetric"
+              },
+              {
+                "enabled": true,
+                "property": "sf_metric"
+              },
+              {
+                "enabled": true,
+                "property": "sf_environment"
+              },
+              {
+                "enabled": true,
+                "property": "sf_error"
+              },
+              {
+                "enabled": true,
+                "property": "sf_service"
+              }
+            ]
+          },
+          "maximumPrecision": 4,
+          "programOptions": {
+            "disableSampling": false,
+            "maxDelay": 0,
+            "minimumResolution": 0,
+            "timezone": null
+          },
+          "publishLabelOptions": [
+            {
+              "displayName": "Jobs Started (1d)",
+              "label": "A",
+              "paletteIndex": 6,
+              "plotType": null,
+              "valuePrefix": "",
+              "valueSuffix": "",
+              "valueUnit": null,
+              "yAxis": 0
+            },
+            {
+              "displayName": "Jobs Failed (1d)",
+              "label": "B",
+              "paletteIndex": 13,
+              "plotType": null,
+              "valuePrefix": "",
+              "valueSuffix": "",
+              "valueUnit": null,
+              "yAxis": 0
+            },
+            {
+              "displayName": "Failure Rate % (1d)",
+              "label": "C",
+              "paletteIndex": 2,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": "%",
+              "valueUnit": null,
+              "yAxis": 0
+            }
+          ],
+          "refreshInterval": null,
+          "secondaryVisualization": "Sparkline",
+          "sortBy": "",
+          "time": {
+            "range": 900000,
+            "rangeEnd": 0,
+            "type": "relative"
+          },
+          "type": "List",
+          "unitPrefix": "Metric"
+        },
+        "packageSpecifications": "",
+        "programText": "A = data('service.request.count', filter=filter('sf_environment', '*') and filter('sf_service', '*'), rollup='sum').sum(over='1d').sum(by=['sf_service']).publish(label='A')\nB = data('service.request.count', filter=filter('sf_environment', '*') and filter('sf_service', '*') and filter('sf_error', 'true'), rollup='sum').sum(over='1d').sum(by=['sf_service']).publish(label='B')\nC = (100*(B/A)).publish(label='C')",
+        "relatedDetectorIds": [],
+        "tags": null
+      }
+    },
+    {
+      "chart": {
+        "created": 0,
+        "creator": null,
+        "customProperties": {},
+        "description": "Top pipelines by number of runs",
+        "id": "FAZXlLVAwAc",
+        "lastUpdated": 0,
+        "lastUpdatedBy": null,
+        "name": "Top pipelines by runs (1h)",
+        "options": {
+          "colorBy": "Dimension",
+          "colorScale2": null,
+          "hideMissingValues": false,
+          "legendOptions": {
+            "fields": [
+              {
+                "enabled": false,
+                "property": "sf_originatingMetric"
+              },
+              {
+                "enabled": false,
+                "property": "sf_metric"
+              },
+              {
+                "enabled": false,
+                "property": "sf_environment"
+              },
+              {
+                "enabled": true,
+                "property": "sf_operation"
+              },
+              {
+                "enabled": true,
+                "property": "sf_httpMethod"
+              },
+              {
+                "enabled": true,
+                "property": "sf_service"
+              }
+            ]
+          },
+          "maximumPrecision": null,
+          "programOptions": {
+            "disableSampling": false,
+            "maxDelay": 30000,
+            "minimumResolution": 0,
+            "timezone": null
+          },
+          "publishLabelOptions": [
+            {
+              "displayName": "Jobs Started",
+              "label": "A",
+              "paletteIndex": null,
+              "plotType": null,
+              "valuePrefix": "",
+              "valueSuffix": "",
+              "valueUnit": null,
+              "yAxis": 0
+            }
+          ],
+          "refreshInterval": null,
+          "secondaryVisualization": "None",
+          "sortBy": "-value",
+          "time": {
+            "range": 900000,
+            "rangeEnd": 0,
+            "type": "relative"
+          },
+          "type": "List",
+          "unitPrefix": "Metric"
+        },
+        "packageSpecifications": "",
+        "programText": "filter_ = filter('sf_environment', '*') and filter('sf_service', '*') and filter('sf_kind', 'SERVER', 'CONSUMER') and (not filter('sf_dimensionalized', '*')) and (not filter('sf_serviceMesh', '*'))\nA = data('spans.count', filter=filter_, rollup='sum', extrapolation='last_value').sum(by=['sf_environment', 'sf_service', 'sf_operation', 'sf_httpMethod'], allow_missing=['sf_httpMethod']).sum(over='1h').mean(over='1m').top(count=10).publish(label='A')",
+        "relatedDetectorIds": [],
+        "tags": null
+      }
+    },
+    {
+      "chart": {
+        "created": 0,
+        "creator": null,
+        "customProperties": {},
+        "description": "Failure Rate (%) by Pipeline",
+        "id": "FAZXm7dAwAQ",
+        "lastUpdated": 0,
+        "lastUpdatedBy": null,
+        "name": "Failure Rate (%) by Pipeline",
+        "options": {
+          "areaChartOptions": {
+            "showDataMarkers": false
+          },
+          "axes": [
+            {
+              "highWatermark": null,
+              "highWatermarkLabel": null,
+              "label": "%",
+              "lowWatermark": null,
+              "lowWatermarkLabel": null,
+              "max": null,
+              "min": null
+            },
+            {
+              "highWatermark": null,
+              "highWatermarkLabel": null,
+              "label": "",
+              "lowWatermark": null,
+              "lowWatermarkLabel": null,
+              "max": null,
+              "min": null
+            }
+          ],
+          "axisPrecision": null,
+          "colorBy": "Dimension",
+          "defaultPlotType": "LineChart",
+          "eventPublishLabelOptions": [],
+          "histogramChartOptions": {
+            "colorThemeIndex": 16
+          },
+          "includeZero": false,
+          "legendOptions": {
+            "fields": null
+          },
+          "lineChartOptions": {
+            "showDataMarkers": false
+          },
+          "onChartLegendOptions": {
+            "dimensionInLegend": null,
+            "showLegend": false
+          },
+          "programOptions": {
+            "disableSampling": true,
+            "maxDelay": 30000,
+            "minimumResolution": 10000,
+            "timezone": null
+          },
+          "publishLabelOptions": [
+            {
+              "displayName": "Errors",
+              "label": "A",
+              "paletteIndex": null,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": null,
+              "valueUnit": null,
+              "yAxis": 0
+            },
+            {
+              "displayName": "Requests",
+              "label": "B",
+              "paletteIndex": null,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": null,
+              "valueUnit": null,
+              "yAxis": 0
+            },
+            {
+              "displayName": "Error rate",
+              "label": "C",
+              "paletteIndex": null,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": "%",
+              "valueUnit": null,
+              "yAxis": 0
+            }
+          ],
+          "showEventLines": false,
+          "stacked": false,
+          "time": {
+            "range": 900000,
+            "rangeEnd": 0,
+            "type": "relative"
+          },
+          "type": "TimeSeriesChart",
+          "unitPrefix": "Metric"
+        },
+        "packageSpecifications": "",
+        "programText": "filter_ = filter('sf_environment', '*') and filter('sf_service', '*') and filter('sf_kind', 'SERVER', 'CONSUMER') and (not filter('sf_dimensionalized', '*')) and (not filter('sf_serviceMesh', '*'))\nA = data('spans.count', filter=filter_ and filter('sf_error', 'true'), rollup='rate').sum(by=['sf_environment', 'sf_service', 'sf_operation', 'sf_httpMethod'], allow_missing=['sf_httpMethod']).publish(label='A', enable=False)\nB = data('spans.count', filter=filter_, rollup='rate').sum(by=['sf_environment', 'sf_service', 'sf_operation', 'sf_httpMethod'], allow_missing=['sf_httpMethod']).publish(label='B', enable=False)\nC = combine(100*((A if A is not None else 0)/B)).publish(label='C')",
+        "relatedDetectorIds": [],
+        "tags": null
+      }
+    },
+    {
+      "chart": {
+        "created": 0,
+        "creator": null,
+        "customProperties": {},
+        "description": "Add events matching your alerts to this chart and the above Event overlay",
+        "id": "FAZXzyMA0AA",
+        "lastUpdated": 0,
+        "lastUpdatedBy": null,
+        "name": "Events",
+        "options": {
+          "eventPublishLabelOptions": [
+            {
+              "displayName": "Select Detector",
+              "label": "A",
+              "paletteIndex": null
+            }
+          ],
+          "time": {
+            "range": 900000,
+            "rangeEnd": 0,
+            "type": "relative"
+          },
+          "type": "Event"
+        },
+        "packageSpecifications": "",
+        "programText": "A = alerts(detector_name='Select Detector').publish(label='A')",
+        "relatedDetectorIds": [],
+        "tags": null
+      }
+    },
+    {
+      "chart": {
+        "created": 0,
+        "creator": null,
+        "customProperties": {},
+        "description": "Total number of jobs started",
+        "id": "FAZX0GnA4AM",
+        "lastUpdated": 0,
+        "lastUpdatedBy": null,
+        "name": "Jobs Started Sumarry",
+        "options": {
+          "areaChartOptions": {
+            "showDataMarkers": true
+          },
+          "axes": [
+            {
+              "highWatermark": null,
+              "highWatermarkLabel": null,
+              "label": "",
+              "lowWatermark": null,
+              "lowWatermarkLabel": null,
+              "max": null,
+              "min": null
+            },
+            {
+              "highWatermark": null,
+              "highWatermarkLabel": null,
+              "label": "",
+              "lowWatermark": null,
+              "lowWatermarkLabel": null,
+              "max": null,
+              "min": null
+            }
+          ],
+          "axisPrecision": null,
+          "colorBy": "Dimension",
+          "defaultPlotType": "LineChart",
+          "eventPublishLabelOptions": [
+            {
+              "displayName": "Build Buttercup Workflow Error Rate",
+              "label": "D",
+              "paletteIndex": null
+            }
+          ],
+          "histogramChartOptions": {
+            "colorThemeIndex": 16
+          },
+          "includeZero": false,
+          "legendOptions": {
+            "fields": null
+          },
+          "lineChartOptions": {
+            "showDataMarkers": true
+          },
+          "onChartLegendOptions": {
+            "dimensionInLegend": "sf_metric",
+            "showLegend": true
+          },
+          "programOptions": {
+            "disableSampling": false,
+            "maxDelay": 0,
+            "minimumResolution": 10000,
+            "timezone": null
+          },
+          "publishLabelOptions": [
+            {
+              "displayName": "Requests/sec",
+              "label": "C",
+              "paletteIndex": 11,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": "requests/s",
+              "valueUnit": null,
+              "yAxis": 0
+            }
+          ],
+          "showEventLines": true,
+          "stacked": false,
+          "time": {
+            "range": 900000,
+            "rangeEnd": 0,
+            "type": "relative"
+          },
+          "type": "TimeSeriesChart",
+          "unitPrefix": "Metric"
+        },
+        "packageSpecifications": "",
+        "programText": "C = data('service.request.count', filter=filter('sf_environment', '*') and filter('sf_service', '*') and (not filter('sf_dimensionalized', '*')), rollup='sum').sum(by=['sf_service', 'sf_environment']).publish(label='C')\nD = alerts(detector_name='Build Buttercup Workflow Error Rate').publish(label='D')",
+        "relatedDetectorIds": [],
+        "tags": null
+      }
+    },
+    {
+      "chart": {
+        "created": 0,
+        "creator": null,
+        "customProperties": {},
+        "description": "Most erroneous service endpoints (1-hour error rate average)",
+        "id": "FAZX0GpA0AE",
+        "lastUpdated": 0,
+        "lastUpdatedBy": null,
+        "name": "Top endpoints by error rate (1h)",
+        "options": {
+          "colorBy": "Dimension",
+          "colorScale2": null,
+          "hideMissingValues": false,
+          "legendOptions": {
+            "fields": [
+              {
+                "enabled": false,
+                "property": "sf_originatingMetric"
+              },
+              {
+                "enabled": false,
+                "property": "sf_metric"
+              },
+              {
+                "enabled": false,
+                "property": "sf_environment"
+              },
+              {
+                "enabled": true,
+                "property": "sf_operation"
+              },
+              {
+                "enabled": true,
+                "property": "sf_httpMethod"
+              },
+              {
+                "enabled": true,
+                "property": "sf_service"
+              }
+            ]
+          },
+          "maximumPrecision": null,
+          "programOptions": {
+            "disableSampling": false,
+            "maxDelay": 30000,
+            "minimumResolution": 0,
+            "timezone": null
+          },
+          "publishLabelOptions": [
+            {
+              "displayName": "Errors",
+              "label": "A",
+              "paletteIndex": null,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": null,
+              "valueUnit": null,
+              "yAxis": 0
+            },
+            {
+              "displayName": "Requests",
+              "label": "B",
+              "paletteIndex": null,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": null,
+              "valueUnit": null,
+              "yAxis": 0
+            },
+            {
+              "displayName": "Error rate",
+              "label": "C",
+              "paletteIndex": null,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": "%",
+              "valueUnit": null,
+              "yAxis": 0
+            }
+          ],
+          "refreshInterval": null,
+          "secondaryVisualization": "None",
+          "sortBy": "-value",
+          "time": {
+            "range": 900000,
+            "rangeEnd": 0,
+            "type": "relative"
+          },
+          "type": "List",
+          "unitPrefix": "Metric"
+        },
+        "packageSpecifications": "",
+        "programText": "filter_ = filter('sf_environment', '*') and filter('sf_service', '*') and filter('sf_kind', 'SERVER', 'CONSUMER') and (not filter('sf_dimensionalized', '*')) and (not filter('sf_serviceMesh', '*'))\nA = data('spans.count', filter=filter_ and filter('sf_error', 'true'), rollup='rate').sum(by=['sf_environment', 'sf_service', 'sf_operation', 'sf_httpMethod'], allow_missing=['sf_httpMethod']).sum(over='1h').publish(label='A', enable=False)\nB = data('spans.count', filter=filter_, rollup='rate').sum(by=['sf_environment', 'sf_service', 'sf_operation', 'sf_httpMethod'], allow_missing=['sf_httpMethod']).sum(over='1h').publish(label='B', enable=False)\nC = combine(100*((A if A is not None else 0)/B)).mean(over='1m').top(count=10).publish(label='C')",
+        "relatedDetectorIds": [],
+        "tags": null
+      }
+    },
+    {
+      "chart": {
+        "created": 0,
+        "creator": null,
+        "customProperties": {},
+        "description": "Job Length by Pipeline",
+        "id": "FAZX04BA0AA",
+        "lastUpdated": 0,
+        "lastUpdatedBy": null,
+        "name": "Job Length by Pipeline",
+        "options": {
+          "areaChartOptions": {
+            "showDataMarkers": false
+          },
+          "axes": [
+            {
+              "highWatermark": null,
+              "highWatermarkLabel": null,
+              "label": "",
+              "lowWatermark": null,
+              "lowWatermarkLabel": null,
+              "max": null,
+              "min": null
+            },
+            {
+              "highWatermark": null,
+              "highWatermarkLabel": null,
+              "label": "",
+              "lowWatermark": null,
+              "lowWatermarkLabel": null,
+              "max": null,
+              "min": null
+            }
+          ],
+          "axisPrecision": null,
+          "colorBy": "Dimension",
+          "defaultPlotType": "LineChart",
+          "eventPublishLabelOptions": [],
+          "histogramChartOptions": {
+            "colorThemeIndex": 16
+          },
+          "includeZero": false,
+          "legendOptions": {
+            "fields": null
+          },
+          "lineChartOptions": {
+            "showDataMarkers": false
+          },
+          "onChartLegendOptions": {
+            "dimensionInLegend": null,
+            "showLegend": false
+          },
+          "programOptions": {
+            "disableSampling": true,
+            "maxDelay": 30000,
+            "minimumResolution": 10000,
+            "timezone": null
+          },
+          "publishLabelOptions": [
+            {
+              "displayName": "p90",
+              "label": "p90",
+              "paletteIndex": null,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": null,
+              "valueUnit": "Nanosecond",
+              "yAxis": 0
+            }
+          ],
+          "showEventLines": false,
+          "stacked": false,
+          "time": {
+            "range": 900000,
+            "rangeEnd": 0,
+            "type": "relative"
+          },
+          "type": "TimeSeriesChart",
+          "unitPrefix": "Metric"
+        },
+        "packageSpecifications": "",
+        "programText": "def weighted_duration(base, p, filter_, groupby):\n    error_durations     = data(base + '.duration.ns.' + p, filter=filter_ and filter('sf_error', 'true'),  rollup='max').mean(by=groupby, allow_missing=['sf_httpMethod'])\n    non_error_durations = data(base + '.duration.ns.' + p, filter=filter_ and filter('sf_error', 'false'), rollup='max').mean(by=groupby, allow_missing=['sf_httpMethod'])\n\n    error_counts     = data(base + '.count', filter=filter_ and filter('sf_error', 'true'),  rollup='sum').sum(by=groupby, allow_missing=['sf_httpMethod'])\n    non_error_counts = data(base + '.count', filter=filter_ and filter('sf_error', 'false'), rollup='sum').sum(by=groupby, allow_missing=['sf_httpMethod'])\n\n    error_weight     = (error_durations * error_counts).sum(over='1m')\n    non_error_weight = (non_error_durations * non_error_counts).sum(over='1m')\n\n    total_weight = combine((error_weight if error_weight is not None else 0) + (non_error_weight if non_error_weight is not None else 0))\n    total = combine((error_counts if error_counts is not None else 0) + (non_error_counts if non_error_counts is not None else 0)).sum(over='1m')\n    return (total_weight / total)\n\nfilter_ = filter('sf_environment', '*') and filter('sf_service', '*') and filter('sf_operation', '*') and filter('sf_kind', 'SERVER', 'CONSUMER') and (not filter('sf_dimensionalized', '*')) and (not filter('sf_serviceMesh', '*'))\ngroupby = ['sf_service', 'sf_environment', 'sf_operation', 'sf_httpMethod']\nweighted_duration('spans', 'p90', filter_, groupby).publish(label='p90')",
+        "relatedDetectorIds": [],
+        "tags": null
+      }
+    },
+    {
+      "chart": {
+        "created": 0,
+        "creator": null,
+        "customProperties": {},
+        "description": "",
+        "id": "FAZX1_PA4AQ",
+        "lastUpdated": 0,
+        "lastUpdatedBy": null,
+        "name": "Pipeline Details (1d)",
+        "options": {
+          "colorBy": "Dimension",
+          "colorScale2": null,
+          "hideMissingValues": false,
+          "legendOptions": {
+            "fields": [
+              {
+                "enabled": false,
+                "property": "sf_originatingMetric"
+              },
+              {
+                "enabled": false,
+                "property": "sf_environment"
+              },
+              {
+                "enabled": true,
+                "property": "sf_operation"
+              },
+              {
+                "enabled": false,
+                "property": "sf_service"
+              },
+              {
+                "enabled": true,
+                "property": "sf_metric"
+              }
+            ]
+          },
+          "maximumPrecision": 4,
+          "programOptions": {
+            "disableSampling": true,
+            "maxDelay": 30000,
+            "minimumResolution": 10000,
+            "timezone": null
+          },
+          "publishLabelOptions": [
+            {
+              "displayName": "Jobs Started (1d)",
+              "label": "A",
+              "paletteIndex": 4,
+              "plotType": null,
+              "valuePrefix": "",
+              "valueSuffix": "",
+              "valueUnit": null,
+              "yAxis": 0
+            },
+            {
+              "displayName": "Failed Jobs (1d)",
+              "label": "B",
+              "paletteIndex": 5,
+              "plotType": null,
+              "valuePrefix": "",
+              "valueSuffix": "",
+              "valueUnit": null,
+              "yAxis": 0
+            },
+            {
+              "displayName": "Failure Rate % (1d)",
+              "label": "C",
+              "paletteIndex": 10,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": "%",
+              "valueUnit": null,
+              "yAxis": 0
+            }
+          ],
+          "refreshInterval": null,
+          "secondaryVisualization": "Sparkline",
+          "sortBy": "-value",
+          "time": {
+            "range": 900000,
+            "rangeEnd": 0,
+            "type": "relative"
+          },
+          "type": "List",
+          "unitPrefix": "Metric"
+        },
+        "packageSpecifications": "",
+        "programText": "filter_ = filter('sf_environment', '*') and filter('sf_service', '*') and filter('sf_operation', '*') and filter('sf_kind', 'SERVER', 'CONSUMER') and (not filter('sf_dimensionalized', '*')) and (not filter('sf_serviceMesh', '*'))\nfilter_errors = filter('sf_environment', '*') and filter('sf_service', '*') and filter('sf_operation', '*') and filter('sf_error', 'true') and filter('sf_kind', 'SERVER', 'CONSUMER') and (not filter('sf_dimensionalized', '*')) and (not filter('sf_serviceMesh', '*'))\nA = data('spans.count', filter=filter_, extrapolation='null').sum(over='1d').sum(by=['sf_environment', 'sf_service', 'sf_operation', 'sf_httpMethod'], allow_missing=['sf_httpMethod']).publish(label='A')\nB = data('spans.count', filter=filter_errors, extrapolation='null').sum(over='1d').sum(by=['sf_environment', 'sf_service', 'sf_operation', 'sf_httpMethod'], allow_missing=['sf_httpMethod']).publish(label='B')\nC = (100*(B/A)).publish(label='C')",
+        "relatedDetectorIds": [],
+        "tags": null
+      }
+    },
+    {
+      "chart": {
+        "created": 0,
+        "creator": null,
+        "customProperties": {},
+        "description": "Top pipelines by job length",
+        "id": "FAZcT6nA4AA",
+        "lastUpdated": 0,
+        "lastUpdatedBy": null,
+        "name": "Top pipelines by job length (1h)",
+        "options": {
+          "colorBy": "Dimension",
+          "colorScale2": null,
+          "hideMissingValues": false,
+          "legendOptions": {
+            "fields": [
+              {
+                "enabled": false,
+                "property": "sf_originatingMetric"
+              },
+              {
+                "enabled": false,
+                "property": "sf_metric"
+              },
+              {
+                "enabled": false,
+                "property": "sf_environment"
+              },
+              {
+                "enabled": true,
+                "property": "sf_operation"
+              },
+              {
+                "enabled": false,
+                "property": "sf_httpMethod"
+              },
+              {
+                "enabled": true,
+                "property": "sf_service"
+              }
+            ]
+          },
+          "maximumPrecision": 4,
+          "programOptions": {
+            "disableSampling": false,
+            "maxDelay": 0,
+            "minimumResolution": 0,
+            "timezone": null
+          },
+          "publishLabelOptions": [
+            {
+              "displayName": "p90",
+              "label": "p90",
+              "paletteIndex": null,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": null,
+              "valueUnit": "Nanosecond",
+              "yAxis": 0
+            }
+          ],
+          "refreshInterval": null,
+          "secondaryVisualization": "None",
+          "sortBy": "-value",
+          "time": {
+            "range": 3600000,
+            "rangeEnd": 0,
+            "type": "relative"
+          },
+          "type": "List",
+          "unitPrefix": "Metric"
+        },
+        "packageSpecifications": "",
+        "programText": "def weighted_duration(base, p, filter_, groupby):\n    error_durations     = data(base + '.duration.ns.' + p, filter=filter_ and filter('sf_error', 'true'),  rollup='max').mean(by=groupby, allow_missing=['sf_httpMethod'])\n    non_error_durations = data(base + '.duration.ns.' + p, filter=filter_ and filter('sf_error', 'false'), rollup='max').mean(by=groupby, allow_missing=['sf_httpMethod'])\n\n    error_counts     = data(base + '.count', filter=filter_ and filter('sf_error', 'true'),  rollup='sum').sum(by=groupby, allow_missing=['sf_httpMethod'])\n    non_error_counts = data(base + '.count', filter=filter_ and filter('sf_error', 'false'), rollup='sum').sum(by=groupby, allow_missing=['sf_httpMethod'])\n\n    error_weight     = (error_durations * error_counts).sum(over='1h')\n    non_error_weight = (non_error_durations * non_error_counts).sum(over='1h')\n\n    total_weight = combine((error_weight if error_weight is not None else 0) + (non_error_weight if non_error_weight is not None else 0))\n    total = combine((error_counts if error_counts is not None else 0) + (non_error_counts if non_error_counts is not None else 0)).sum(over='1h')\n    return (total_weight / total)\n\nfilter_ = filter('sf_environment', '*') and filter('sf_service', '*') and filter('sf_operation', '*') and filter('sf_kind', 'SERVER', 'CONSUMER') and (not filter('sf_dimensionalized', '*')) and (not filter('sf_serviceMesh', '*'))\ngroupby = ['sf_service', 'sf_environment', 'sf_operation', 'sf_httpMethod']\nweighted_duration('spans', 'p90', filter_, groupby).publish(label='p90')",
+        "relatedDetectorIds": [],
+        "tags": null
+      }
+    },
+    {
+      "chart": {
+        "created": 0,
+        "creator": null,
+        "customProperties": {},
+        "description": "Total error rate for all jobs",
+        "id": "FAZg9_WA0AA",
+        "importOf": "EPK1bKxAcAA",
+        "lastUpdated": 0,
+        "lastUpdatedBy": null,
+        "name": "Error Rate Summary",
+        "options": {
+          "areaChartOptions": {
+            "showDataMarkers": false
+          },
+          "axes": [
+            {
+              "highWatermark": null,
+              "highWatermarkLabel": null,
+              "label": "%",
+              "lowWatermark": null,
+              "lowWatermarkLabel": null,
+              "max": null,
+              "min": null
+            },
+            {
+              "highWatermark": null,
+              "highWatermarkLabel": null,
+              "label": "",
+              "lowWatermark": null,
+              "lowWatermarkLabel": null,
+              "max": null,
+              "min": null
+            }
+          ],
+          "axisPrecision": null,
+          "colorBy": "Dimension",
+          "defaultPlotType": "LineChart",
+          "eventPublishLabelOptions": [],
+          "histogramChartOptions": {
+            "colorThemeIndex": 16
+          },
+          "includeZero": false,
+          "legendOptions": {
+            "fields": null
+          },
+          "lineChartOptions": {
+            "showDataMarkers": false
+          },
+          "onChartLegendOptions": {
+            "dimensionInLegend": null,
+            "showLegend": false
+          },
+          "programOptions": {
+            "disableSampling": false,
+            "maxDelay": 0,
+            "minimumResolution": 10000,
+            "timezone": null
+          },
+          "publishLabelOptions": [
+            {
+              "displayName": "Errors",
+              "label": "A",
+              "paletteIndex": null,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": null,
+              "valueUnit": null,
+              "yAxis": 0
+            },
+            {
+              "displayName": "Requests",
+              "label": "B",
+              "paletteIndex": null,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": null,
+              "valueUnit": null,
+              "yAxis": 0
+            },
+            {
+              "displayName": "Error rate",
+              "label": "C",
+              "paletteIndex": 9,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": "%",
+              "valueUnit": null,
+              "yAxis": 0
+            }
+          ],
+          "showEventLines": false,
+          "stacked": false,
+          "time": {
+            "range": 900000,
+            "rangeEnd": 0,
+            "type": "relative"
+          },
+          "type": "TimeSeriesChart",
+          "unitPrefix": "Metric"
+        },
+        "packageSpecifications": "",
+        "programText": "filter_ = filter('sf_environment', '*') and filter('sf_service', '*') and (not filter('sf_dimensionalized', '*'))\nA = data('service.request.count', filter=filter_ and filter('sf_error', 'true'), rollup='delta').sum(by=['sf_environment', 'sf_service']).publish(label='A', enable=False)\nB = data('service.request.count', filter=filter_, rollup='delta').sum(by=['sf_environment', 'sf_service']).publish(label='B', enable=False)\nC = combine(100*((A if A is not None else 0) / B)).publish(label='C')",
+        "relatedDetectorIds": [],
+        "tags": null
+      }
+    }
+  ],
+  "dashboardExport": {
+    "dashboard": {
+      "authorizedWriters": null,
+      "chartDensity": "DEFAULT",
+      "charts": [
+        {
+          "chartId": "FAZXlLVAwAY",
+          "column": 0,
+          "height": 1,
+          "row": 0,
+          "width": 4
+        },
+        {
+          "chartId": "FAZXzyMA0AA",
+          "column": 8,
+          "height": 3,
+          "row": 0,
+          "width": 4
+        },
+        {
+          "chartId": "FAZX1_PA4AQ",
+          "column": 4,
+          "height": 1,
+          "row": 0,
+          "width": 4
+        },
+        {
+          "chartId": "FAZX0GnA4AM",
+          "column": 0,
+          "height": 1,
+          "row": 1,
+          "width": 4
+        },
+        {
+          "chartId": "FAZX04BA0AA",
+          "column": 4,
+          "height": 1,
+          "row": 1,
+          "width": 4
+        },
+        {
+          "chartId": "FAZXm7dAwAQ",
+          "column": 4,
+          "height": 1,
+          "row": 2,
+          "width": 4
+        },
+        {
+          "chartId": "FAZg9_WA0AA",
+          "column": 0,
+          "height": 1,
+          "row": 2,
+          "width": 4
+        },
+        {
+          "chartId": "FAZXlLVAwAc",
+          "column": 0,
+          "height": 1,
+          "row": 3,
+          "width": 4
+        },
+        {
+          "chartId": "FAZcT6nA4AA",
+          "column": 4,
+          "height": 1,
+          "row": 3,
+          "width": 4
+        },
+        {
+          "chartId": "FAZX0GpA0AE",
+          "column": 8,
+          "height": 1,
+          "row": 3,
+          "width": 4
+        }
+      ],
+      "created": 0,
+      "creator": null,
+      "customProperties": null,
+      "description": "Service-level indicators from APM Tracing Metrics",
+      "discoveryOptions": null,
+      "eventOverlays": [
+        {
+          "eventColorIndex": 1,
+          "eventLine": true,
+          "eventSignal": {
+            "detectorId": null,
+            "eventSearchText": "*Buttercup*",
+            "eventType": "eventTimeSeries"
+          },
+          "label": "*Buttercup*",
+          "overlayId": "XjeUT2",
+          "sources": []
+        },
+        {
+          "eventColorIndex": 1,
+          "eventLine": true,
+          "eventSignal": {
+            "detectorId": null,
+            "eventSearchText": "*Buttercup*",
+            "eventType": "detectorEvents"
+          },
+          "label": "*Buttercup*",
+          "overlayId": "ckNNSj",
+          "sources": []
+        }
+      ],
+      "filters": {
+        "sources": null,
+        "time": {
+          "end": "Now",
+          "start": "-4h"
+        },
+        "variables": [
+          {
+            "alias": "Environment",
+            "applyIfExists": false,
+            "description": "APM Environment Name",
+            "preferredSuggestions": [],
+            "property": "sf_environment",
+            "propertyMappings": [
+              "sf_environment"
+            ],
+            "replaceOnly": false,
+            "required": true,
+            "restricted": false,
+            "value": [
+              "Select Environment"
+            ]
+          },
+          {
+            "alias": "Service",
+            "applyIfExists": false,
+            "description": "APM Service Name",
+            "preferredSuggestions": [],
+            "property": "sf_service",
+            "propertyMappings": [
+              "sf_service"
+            ],
+            "replaceOnly": true,
+            "required": true,
+            "restricted": false,
+            "value": [
+              "Select Service"
+            ]
+          },
+          {
+            "alias": "Pipeline",
+            "applyIfExists": false,
+            "description": "",
+            "preferredSuggestions": [],
+            "property": "sf_operation",
+            "propertyMappings": [
+              "sf_operation"
+            ],
+            "replaceOnly": true,
+            "required": false,
+            "restricted": false,
+            "value": [
+              "Select Pipeline"
+            ]
+          }
+        ]
+      },
+      "groupId": "E8ePvoTA0AE",
+      "id": "FAZX1_PA4AU",
+      "lastUpdated": 0,
+      "lastUpdatedBy": null,
+      "maxDelayOverride": null,
+      "name": "Jenkins-APM-Service-Endpoints",
+      "selectedEventOverlays": [
+        {
+          "eventSignal": {
+            "detectorId": null,
+            "eventSearchText": "*Select detector*",
+            "eventType": "eventTimeSeries"
+          },
+          "overlayId": null,
+          "sources": []
+        }
+      ],
+      "tags": null
+    }
+  },
+  "hashCode": -550392347,
+  "id": "FAZX1_PA4AU",
+  "modelVersion": 1,
+  "packageType": "DASHBOARD"
+}
