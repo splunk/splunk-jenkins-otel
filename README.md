@@ -1,6 +1,6 @@
 # Jenkins-OTEL-Notes-Gists
 
-1. How can we use the Jenkins OTEL plugin to get data in to Splunk?
+## How can we use the Jenkins OTEL plugin to get data in to Splunk?
     - [Jenkins OTEL plugin](https://plugins.jenkins.io/opentelemetry/#getting-started) (by Cyrille Le Clerc) can be used with an [OTEL collector](https://github.com/signalfx/splunk-otel-collector) to send to Splunk Observability Cloud (formerly SignalFx) APM, Splunk Log Observer, and Splunk HEC
         - Quick linux install: 
             ```
@@ -9,8 +9,9 @@
             ```
     - **NOTE:** For traditional Build Logs it is possible to run an OTEL agent on the Jenkins instance and send build logs through OTEL as well
 
-2. What does the OTEL config look like? 
-    - Can setup for just HEC, just Log Observer, or BOTH. Config below is for both
+## What does the OTEL config look like? 
+    - **NOTE:** OTEL can be setup to send APM data to Splunk APM, Spunk Enterprise HEC, Splunk Log Observer, or all three! Config below is for sending to all three.
+    
     1. Config for [Splunk Otel Variables](./splunk-otel-collector.conf) (default location on instance is `/etc/otel/collector/splunk-otel-collector.conf`)
 
     2. Config for [OTEL Agent](./agent_config.yaml) (default location on instance is `/etc/otel/collector/agent_config.yaml`)
@@ -22,7 +23,7 @@
                 value: test
                 action: insert
             ```
-        - Also pay attention to the dual exporters for our logs. One sending to Splunk Log Observer and the other to HEC for Splunk Enterprise
+        - Also pay attention to the dual exporters for our APM logs. One is sending to Splunk Log Observer and the other to HEC for Splunk Enterprise. This allows us to leverage Splunks logging tools for more detailed analysis of Jenkins usage. Sending to Log Observer also allows us to create time series metrics out of our APM data for detailed historical tracking of trends in individual spans/steps.
             ```
             # Logs
             splunk_hec/log_observer:
@@ -50,7 +51,7 @@
                   - resourcedetection
                   exporters: [sapm, signalfx, splunk_hec, splunk_hec/log_observer]
             ```
-3. OTEL collector is setup. I've installed the Jenkins OTEL plug using the Jenkins Plugin Manager. How do I configure the Jenkins OTEL plugin?
+## OTEL collector is setup. I've installed the Jenkins OTEL plug using the Jenkins Plugin Manager. How do I configure the Jenkins OTEL plugin?
     - Add your OTEL Collector Instance's IP and the appropriate port to the `OTLP GRPC ENDPOINT` field in Manage Jenkins > Configure System.  
         - Default port: `4317`
         -  Verify open ports on the box:
@@ -76,8 +77,9 @@
         
     - Click the `Advanced...` button to open up dialogs to set an APM `Service name` and `Service namespace`
 
-4. Once traces are going in you should see your Jenkins Instance as an APM Service.   
-    - Each of the Pipelines running in Jenkins will be treated as a Service Endpoint
+## I've verified traces are going in to Splunk APM. Where should I see my Jenkins Instance in Splunk APM?
+    - Splunk APM will show your Jenkins instance as the same value you have input in The Jenkins Otel Collector setup's `Service name` and `Service namespace` settings
+    - Each of the Pipelines running in the Jenkins instance will be treated as a Service Endpoint in Splunk APM
     - A basic [Jenkins dashboard](./dashboards/Jenkins-Service-Endpoint-OTEL-APM.json) is included in this repository as a starting point
         1. Filter by your environment variable
         2. Filter by your Jenkins Service Name
@@ -85,7 +87,9 @@
         4. Edit Event Overlay to match detectors (I.E. Detector for build failures)
     ![Service Endpoint Dashboard](./images/Jenkins-Service-Endpoint-OTEL-APM.png)
 
-5. Splunk Log Observer can be leveraged to help get a better overview of the Overall Jenkins Health and specific metrics around individual steps.
+## How can I use Splunk Log Observer to help get a better overview of the Overall Jenkins Health and specific metrics around individual steps over time?
+To create time series metrics from your Jenkins APM data use Log Observer to metricize the APM span data. This allows you to plot those values historically even if your Jenkins APM data has aged out of Splunk APM.
+
     - For step and job success information [enable these metrics through Log Observer](./images/Jenkins-LogObserver-Setup.png).
         1. Ingest your logs into Log Observer (see above OTEL configuration files)
         2. Create metrics for `jenkins.run.status` and `jenkins.pipeline.step.status`
@@ -106,7 +110,7 @@
     3. Filter by Service Name
     ![Jenkins Health Overview](images/Jenkins-Overview-OTEL-LogObserver.png)
 
-6. Setup a detector on Jenkins deployments using OTEL data. 
+## How can I Setup a detector on Jenkins deployments using OTEL data? 
     1. Create a detector [using the V2 detector url](https://app.us1.signalfx.com/#/detector/v2/new) to leverage a SignalFlow query.
         - Example SignalFlow for Service Name: `jenkins-service` and Workflow (pipeline): `Big Pipeline` in the `test` environment:
         ```
