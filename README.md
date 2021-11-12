@@ -91,6 +91,7 @@
 
 ## How can I use Splunk Log Observer to help get a better overview of the Overall Jenkins Health and specific metrics around individual steps over time?
 To create time series metrics from your Jenkins APM data use Log Observer to metricize the APM span data. This allows you to plot those values historically even if your Jenkins APM data has aged out of Splunk APM.
+- **Note:** This requires sending your OTEL Collector config to send the Jenkins APM data to Splunk Log Observer as detailed [above](#what-does-the-otel-config-look-like)
 
 - For step and job success information [enable these metrics through Log Observer](./images/Jenkins-LogObserver-Setup.png).
     1. Ingest your logs into Log Observer (see above OTEL configuration files)
