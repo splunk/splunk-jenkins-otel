@@ -115,14 +115,14 @@ To create time series metrics from your Jenkins APM data use Log Observer to met
 
 ## How can I Setup a detector on Jenkins deployments using OTEL data? 
 1. Create a detector [using the V2 detector url](https://app.us1.signalfx.com/#/detector/v2/new) to leverage a SignalFlow query.
-    - Example SignalFlow for Service Name: `jenkins-service` and Workflow (pipeline): `Big Pipeline` in the `test` environment:
+    - Example SignalFlow for Service Name: `jenkins-service` and Workflow (pipeline): `Scheduled Buttercup Containers Build` in the `test` environment:
     ```
-    AllReq = data('workflows.count', filter=filter('sf_workflow', 'doug-jenkins:Scheduled Buttercup Containers Build') and filter('sf_environment', 'test') and (not filter('sf_dimensionalized', '*'))).sum(by=['sf_workflow']).publish(label='Success', enable=False)
-    Error = data('workflows.count', filter=filter('sf_workflow', 'doug-jenkins:Scheduled Buttercup Containers Build') and filter('sf_environment', 'test') and (not filter('sf_dimensionalized', '*')) and filter('sf_error', 'false')).sum(by=['sf_workflow']).publish(label='Error', enable=False)
+    AllReq = data('workflows.count', filter=filter('sf_workflow', 'jenkins-service:Scheduled Buttercup Containers Build') and filter('sf_environment', 'test') and (not filter('sf_dimensionalized', '*'))).sum(by=['sf_workflow']).publish(label='Success', enable=False)
+    Error = data('workflows.count', filter=filter('sf_workflow', 'jenkins-service:Scheduled Buttercup Containers Build') and filter('sf_environment', 'test') and (not filter('sf_dimensionalized', '*')) and filter('sf_error', 'false')).sum(by=['sf_workflow']).publish(label='Error', enable=False)
     ErrRate = (100*(AllReq-Error)/AllReq).publish(label='ErrRate')
 
     from signalfx.detectors.apm.workflow_errors.static_v2 import static as workflow_errors_sudden_static_v2
-    workflow_errors_sudden_static_v2.detector(filter_=((filter('sf_workflow', 'doug-jenkins:Scheduled Buttercup Containers Build'))) and (filter('sf_environment', 'test')), custom_filter=None, current_window='30m', fire_rate_threshold=0.1, clear_rate_threshold=0, attempt_threshold=1).publish('Buttercup Build Failure - APM')
+    workflow_errors_sudden_static_v2.detector(filter_=((filter('sf_workflow', 'jenkins-service:Scheduled Buttercup Containers Build'))) and (filter('sf_environment', 'test')), custom_filter=None, current_window='30m', fire_rate_threshold=0.1, clear_rate_threshold=0, attempt_threshold=1).publish('Buttercup Build Failure - APM')
     ```
 2. Add your detector to the Event Overlay for your dashboards and charts!
     - Dashboard Overlay Example:
@@ -134,12 +134,4 @@ To create time series metrics from your Jenkins APM data use Log Observer to met
         3. Click the `Chart Options` tab and select `Show events as lines` and `Show data markers` 
         ![Add Event Lines and Data Markers to Chart](./images/Chart-Options-Markers.png)
 - **PRO-TIP:** Detectors can also be added for another team's deployments if the health of your own could be impacted by a failed deployment.
-
-
-
-
-
-
-
-
 
