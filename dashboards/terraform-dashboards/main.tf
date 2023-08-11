@@ -9,8 +9,8 @@ terraform {
 
 
 provider "signalfx" {
-  #auth_token = "your-apu-key-goes-here"
-  #api_url = "observability-api-url-for-your-real" Example: https://api.us1.signalfx.com
+  #auth_token = "your-api-key-goes-here"
+  #api_url = "observability-api-url-for-your-realm" Example: https://api.us1.signalfx.com
 }
 
 ## Create a dashboard group to reference with each dashboard
