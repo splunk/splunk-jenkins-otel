@@ -2,7 +2,7 @@
 
 ## How can we use the Jenkins OTEL plugin to get data in to Splunk?
 
-- [Jenkins OTEL plugin](https://plugins.jenkins.io/opentelemetry/#getting-started) (by Cyrille Le Clerc) can be used with an [OTEL collector](https://github.com/signalfx/splunk-otel-collector) to send to Splunk Observability Cloud (formerly SignalFx) APM, Splunk Log Observer, and Splunk HEC
+- [Jenkins OTEL plugin](https://plugins.jenkins.io/opentelemetry/#getting-started) (by Cyrille Le Clerc) can be used with an [OTEL collector](https://github.com/signalfx/splunk-otel-collector) to send APM data to Splunk Observability Cloud (formerly SignalFx) APM, and Splunk HEC
     - Quick linux install: 
         ```
             curl -sSL https://dl.signalfx.com/splunk-otel-collector.sh > /tmp/splunk-otel-collector.sh && \
@@ -25,53 +25,70 @@
             value: test
             action: insert
         ```
-    - Also pay attention to the dual exporters for our APM logs. One is sending to Splunk Log Observer and the other to HEC for Splunk Enterprise. This allows us to leverage Splunks logging tools for more detailed analysis of Jenkins usage. Sending to Log Observer also allows us to create time series metrics out of our APM data for detailed historical tracking of trends in individual spans/steps.
+    - Also pay attention to the `transform` processor and `spanmetrics` connector settings which allows us to create time series metrics out of our APM data for detailed historical tracking of trends in individual spans/steps.
         ```
-        # Logs
-        splunk_hec/log_observer:
-            token: "${SPLUNK_ACCESS_TOKEN}"
-            endpoint: "${SPLUNK_LOGOBSERVER_URL}"
-            source: "otel"
-            sourcetype: "otel"
-        splunk_hec:
-            token: "${SPLUNK_HEC_TOKEN}"
-            endpoint: "${SPLUNK_HEC_URL}"
-            source: "otel"
-            sourcetype: "otel"
+        processors:
+          # Transform processor to enrich jenkins span data
+          transform/jenkinstrace:
+              trace_statements:
+                - context: span
+                    statements:
+                    - set(attributes["jenkins.pipeline.step.name"], name) where attributes["jenkins.pipeline.step.name"] == nil  
+                    - set(attributes["jenkins.pipeline.step.type"], name) where attributes["jenkins.pipeline.step.type"] == nil
         ```
-    - Finally we use both of these in our service pipelines for traces (and logs)
         ```
-        service:
-            extensions: [health_check, http_forwarder, zpages, memory_ballast]
-            pipelines:
-            traces:
-                receivers: [jaeger, otlp, smartagent/signalfx-forwarder, zipkin]
-                processors:
-                - memory_limiter
-                - attributes  
-                - batch
-                - resourcedetection
-                exporters: [sapm, signalfx, splunk_hec, splunk_hec/log_observer]
+        connectors:
+          # spanmetrics connector will pull span metrics out of our trace data with dimensions for pipeline id, step name, step type.
+          # Any other dimensions (span tags) can also be added here to put those dimensions onto the spanmetrics
+          spanmetrics/jenkins:
+            histogram:
+            explicit:
+                buckets: [1ms, 10ms, 100ms]
+            dimensions:
+            - name: ci.pipeline.id
+                default: None
+            - name: jenkins.pipeline.step.name
+                default: None
+            - name: jenkins.pipeline.step.type
+                default: None
+            dimensions_cache_size: 1000
+            namespace: jenkins 
+        ```
+    - Finally we use both of these in our service pipelines to process the trace data with `transform`, output it through the `spanmetrics` connector and send the created metrics to Splunk Observability. 
+        ```
+        pipelines:
+        traces:
+            receivers: [otlp/jenkins]
+            processors:
+            - transform/jenkinstrace
+            - memory_limiter
+            - attributes  
+            - batch
+            - resourcedetection
+        metrics:
+            receivers: [otlp, signalfx, spanmetrics/jenkins]
+            processors: [memory_limiter, batch, resourcedetection]
+            exporters: [signalfx]        
         ```
 ## OTEL collector is setup. I've installed the Jenkins OTEL plug using the Jenkins Plugin Manager. How do I configure the Jenkins OTEL plugin?
 - Add your OTEL Collector Instance's IP and the appropriate port to the `OTLP GRPC ENDPOINT` field in Manage Jenkins > Configure System.  
     - Default port: `4317`
-    -  Verify open ports on the box:
-        ```
-        # sudo netstat -tulpn | grep LISTEN        
-        tcp6    0   0 :::22         :::*        LISTEN   507/sshd            
-        tcp6    0   0 :::9943       :::*        LISTEN   9768/otelcol        
-        tcp6    0   0 :::8888       :::*        LISTEN   9768/otelcol        
-        tcp6    0   0 :::9080       :::*        LISTEN   9768/otelcol        
-        tcp6    0   0 :::14268      :::*        LISTEN   9768/otelcol        
-        tcp6    0   0 :::4317       :::*        LISTEN   9768/otelcol      
-        tcp6    0   0 :::55681      :::*        LISTEN   9768/otelcol        
-        tcp6    0   0 :::9411       :::*        LISTEN   9768/otelcol  
-        ```
+        - If needed verify open ports on the opentelemetry collector instance:
+            ```
+            # sudo netstat -tulpn | grep LISTEN        
+            tcp6    0   0 :::22         :::*        LISTEN   507/sshd            
+            tcp6    0   0 :::9943       :::*        LISTEN   9768/otelcol        
+            tcp6    0   0 :::8888       :::*        LISTEN   9768/otelcol        
+            tcp6    0   0 :::9080       :::*        LISTEN   9768/otelcol        
+            tcp6    0   0 :::14268      :::*        LISTEN   9768/otelcol        
+            tcp6    0   0 :::4317       :::*        LISTEN   9768/otelcol      
+            tcp6    0   0 :::55681      :::*        LISTEN   9768/otelcol        
+            tcp6    0   0 :::9411       :::*        LISTEN   9768/otelcol  
+             ```
 
-- Settings in Jenkins Otel Collector  
-    - **OTLP GRPC Endpoint**: http://34.125.182.158:4317
-    - **Authentication**: No Authentication (or choose appropriate options for your tokens)
+- Settings in Jenkins OpenTelemetry Plugin  
+    - **OTLP GRPC Endpoint**: http://instance.ip.goes.here:4317
+    - **Authentication**: Choose appropriate options for your tokens (or the No Authentication option if you must)
     - **Visualisation**:
         - **Custom Observability Backend**
             - **Name**: `Splunk APM (SignalFX)`
@@ -80,7 +97,7 @@
 - Click the `Advanced...` button to open up dialogs to set an APM `Service name` and `Service namespace`
 
 ## I've verified traces are going in to Splunk APM. Where should I see my Jenkins Instance in Splunk APM?
-- Splunk APM will show your Jenkins instance as the same value you have input in The Jenkins Otel Collector setup's `Service name` and `Service namespace` settings
+- Splunk APM will show your Jenkins instance as the same value you have input in The Jenkins OpenTelemetry Plugin setup's `Service name` and `Service namespace` settings
 - Each of the Pipelines running in the Jenkins instance will be treated as a Service Endpoint in Splunk APM
 - A basic [Jenkins dashboard](./dashboards/Jenkins-Service-Endpoint-OTEL-APM.json) is included in this repository as a starting point
     1. Filter by your environment variable
@@ -89,40 +106,22 @@
     4. Edit Event Overlay to match detectors (I.E. Detector for build failures)
 ![Service Endpoint Dashboard](./images/Jenkins-Service-Endpoint-OTEL-APM.png)
 
-## How can I use Splunk Log Observer to help get a better overview of the Overall Jenkins Health and specific metrics around individual steps over time?
-To create time series metrics from your Jenkins APM data use Log Observer to metricize the APM span data. This allows you to plot those values historically even if your Jenkins APM data has aged out of Splunk APM.
-- **Note:** This requires sending your OTEL Collector config to send the Jenkins APM data to Splunk Log Observer as detailed [above](#what-does-the-otel-config-look-like)
+## Using OTEL connectors and processors to get a better overview of the Overall Jenkins Health and specific metrics around individual steps over time?
+To create time series metrics from your Jenkins APM data use the OTEL `transform` processor and `spanmetrics` connector to metricize the APM span data. This allows you to plot those values historically even if your Jenkins APM data has aged out of Splunk APM.
+- **Note:** This requires enhancing your OTEL Collector config to send the Jenkins APM data through the `transform` processor and `spanmetrics` connector as detailed [above](#what-does-the-otel-config-look-like)
 
-- For step and job success information [enable these metrics through Log Observer](./images/Jenkins-LogObserver-Setup.png).
-    1. Ingest your logs into Log Observer (see above OTEL configuration files)
-    2. Create metrics for `jenkins.run.status` and `jenkins.pipeline.step.status`
-        - For `jenkins.run.status`:  
-        ```
-        Matching Condition: attributes.ci.pipeline.id=*
-        Operation: count
-        Dimensions: ["status.code","attributes.ci.pipeline.id","service.name","environment"]
-        ```
-        - For `jenkins.pipeline.step.status`:
-        ```
-        Matching Condition: attributes.jenkins.pipeline.step.name=*
-        Operation: count
-        Dimensions : ["attributes.jenkins.pipeline.step.type","status.code","environment","service.name"]
-        ```
-1. Import the included [Jenkins Health Overview Dashboard](./dashboards/Jenkins-Health-Overview-OTEL-LogObserver.json)
-2. Filter by environment
-3. Filter by Service Name
 ![Jenkins Health Overview](images/Jenkins-Overview-OTEL-LogObserver.png)
 
 ## How can I Setup a detector on Jenkins deployments using OTEL data? 
 1. Create a detector [using the V2 detector url](https://app.us1.signalfx.com/#/detector/v2/new) to leverage a SignalFlow query.
-    - Example SignalFlow for Service Name: `jenkins-service` and Workflow (pipeline): `Scheduled Buttercup Containers Build` in the `test` environment:
+    - Example SignalFlow for Service Name: `jenkins-service` and Workflow (pipeline): `Big Pipeline` in the `test` environment:
     ```
-    AllReq = data('workflows.count', filter=filter('sf_workflow', 'jenkins-service:Scheduled Buttercup Containers Build') and filter('sf_environment', 'test') and (not filter('sf_dimensionalized', '*'))).sum(by=['sf_workflow']).publish(label='Success', enable=False)
-    Error = data('workflows.count', filter=filter('sf_workflow', 'jenkins-service:Scheduled Buttercup Containers Build') and filter('sf_environment', 'test') and (not filter('sf_dimensionalized', '*')) and filter('sf_error', 'false')).sum(by=['sf_workflow']).publish(label='Error', enable=False)
+    AllReq = data('workflows.count', filter=filter('sf_workflow', 'doug-jenkins:Scheduled Buttercup Containers Build') and filter('sf_environment', 'test') and (not filter('sf_dimensionalized', '*'))).sum(by=['sf_workflow']).publish(label='Success', enable=False)
+    Error = data('workflows.count', filter=filter('sf_workflow', 'doug-jenkins:Scheduled Buttercup Containers Build') and filter('sf_environment', 'test') and (not filter('sf_dimensionalized', '*')) and filter('sf_error', 'false')).sum(by=['sf_workflow']).publish(label='Error', enable=False)
     ErrRate = (100*(AllReq-Error)/AllReq).publish(label='ErrRate')
 
     from signalfx.detectors.apm.workflow_errors.static_v2 import static as workflow_errors_sudden_static_v2
-    workflow_errors_sudden_static_v2.detector(filter_=((filter('sf_workflow', 'jenkins-service:Scheduled Buttercup Containers Build'))) and (filter('sf_environment', 'test')), custom_filter=None, current_window='30m', fire_rate_threshold=0.1, clear_rate_threshold=0, attempt_threshold=1).publish('Buttercup Build Failure - APM')
+    workflow_errors_sudden_static_v2.detector(filter_=((filter('sf_workflow', 'doug-jenkins:Scheduled Buttercup Containers Build'))) and (filter('sf_environment', 'test')), custom_filter=None, current_window='30m', fire_rate_threshold=0.1, clear_rate_threshold=0, attempt_threshold=1).publish('Buttercup Build Failure - APM')
     ```
 2. Add your detector to the Event Overlay for your dashboards and charts!
     - Dashboard Overlay Example:
@@ -134,4 +133,12 @@ To create time series metrics from your Jenkins APM data use Log Observer to met
         3. Click the `Chart Options` tab and select `Show events as lines` and `Show data markers` 
         ![Add Event Lines and Data Markers to Chart](./images/Chart-Options-Markers.png)
 - **PRO-TIP:** Detectors can also be added for another team's deployments if the health of your own could be impacted by a failed deployment.
+
+
+
+
+
+
+
+
 
