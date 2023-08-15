@@ -3,7 +3,7 @@
 ## How can we use the Jenkins OTEL plugin to get data in to Splunk?
 
 - [Jenkins OTEL plugin](https://plugins.jenkins.io/opentelemetry/#getting-started) (by Cyrille Le Clerc) can be used with an [OTEL collector](https://github.com/signalfx/splunk-otel-collector) to send APM data to Splunk Observability Cloud (formerly SignalFx) APM, and Splunk HEC
-    - Quick linux install: 
+    - Quick linux install of Splunks OTEL collector: 
         ```
             curl -sSL https://dl.signalfx.com/splunk-otel-collector.sh > /tmp/splunk-otel-collector.sh && \
             sudo sh /tmp/splunk-otel-collector.sh --realm $SPLUNK_REALM -- $SPLUNK_ACCESS_TOKEN
@@ -14,9 +14,9 @@
 
 - **NOTE:** OTEL can be setup to send APM data to Splunk APM, Spunk Enterprise HEC, Splunk Log Observer, or all three! Config below is for sending to all three.
 
-1. Config for [Splunk Otel Variables](./splunk-otel-collector.conf) (default location on instance is `/etc/otel/collector/splunk-otel-collector.conf`)
+1. Config for [Splunk Otel Variables](./splunk-otel-collector.conf) (default location on install is `/etc/otel/collector/splunk-otel-collector.conf`)
 
-2. Config for [OTEL Agent](./agent_config.yaml) (default location on instance is `/etc/otel/collector/agent_config.yaml`)
+2. Config for [OTEL Agent](./agent_config.yaml) (default location on install is `/etc/otel/collector/agent_config.yaml`)
     - Pay special attention to the additional `environment` attribute / tag we're adding to each trace. SignalFX APM utilizes this attribute by default
         ```
         attributes:
@@ -100,14 +100,14 @@
 ## I've verified traces are going in to Splunk APM. Where should I see my Jenkins Instance in Splunk APM?
 - Splunk APM will show your Jenkins instance as the same value you have input in The Jenkins OpenTelemetry Plugin setup's `Service name` and `Service namespace` settings
 - Each of the Pipelines running in the Jenkins instance will be treated as a Service Endpoint in Splunk APM
-- A basic [Jenkins dashboard](./dashboards/Jenkins-Service-Endpoint-OTEL-APM.json) is included in this repository as a starting point
+- Basic [Jenkins dashboards](./dashboards/) are included in this repository as a starting point
     1. Filter by your environment variable
     2. Filter by your Jenkins Service Name
     3. Filter by your Pipeline (or * for all pipelines)
     4. Edit Event Overlay to match detectors (I.E. Detector for build failures)
 ![Service Endpoint Dashboard](./images/Jenkins-Service-Endpoint-OTEL-APM.png)
 
-## Using OTEL connectors and processors to get a better overview of the Overall Jenkins Health and specific metrics around individual steps over time?
+## Using OTEL connectors and processors to get a better overview of the Overall Jenkins Health and specific metrics around individual steps over time
 To create time series metrics from your Jenkins APM data use the OTEL `transform` processor and `spanmetrics` connector to metricize the APM span data. This allows you to plot those values historically even if your Jenkins APM data has aged out of Splunk APM.
 - **Note:** This requires enhancing your OTEL Collector config to send the Jenkins APM data through the `transform` processor and `spanmetrics` connector as detailed [above](#what-does-the-otel-config-look-like)
 
@@ -124,6 +124,7 @@ To create time series metrics from your Jenkins APM data use the OTEL `transform
     from signalfx.detectors.apm.workflow_errors.static_v2 import static as workflow_errors_sudden_static_v2
     workflow_errors_sudden_static_v2.detector(filter_=((filter('sf_workflow', 'jenkins-service:Scheduled Buttercup Containers Build'))) and (filter('sf_environment', 'test')), custom_filter=None, current_window='30m', fire_rate_threshold=0.1, clear_rate_threshold=0, attempt_threshold=1).publish('Buttercup Build Failure - APM')
     ```
+    - Note: other dimensions such as `sf_service` (I.E. Jenkins service name) and `sf_operation` (I.E. pipeline name) can also be used along with metrics like `spans.count` to create detectors
 2. Add your detector to the Event Overlay for your dashboards and charts!
     - Dashboard Overlay Example:
     ![Add Detector Events to Dashboard](./images/Dashboard-Detector-Events.png)
