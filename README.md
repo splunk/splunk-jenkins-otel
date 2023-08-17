@@ -2,7 +2,7 @@
 
 ## How can we use the Jenkins OTEL plugin to get data in to Splunk?
 
-- [Jenkins OTEL plugin](https://plugins.jenkins.io/opentelemetry/#getting-started) (by Cyrille Le Clerc) can be used with an [OTEL collector](https://github.com/signalfx/splunk-otel-collector) to send APM data to Splunk Observability Cloud (formerly SignalFx) APM, and Splunk HEC
+- [Jenkins OTEL plugin](https://plugins.jenkins.io/opentelemetry/#getting-started) (by Cyrille Le Clerc) can be used with an [OTEL collector](https://github.com/signalfx/splunk-otel-collector) to send APM data to Splunk Observability Cloud (formerly SignalFx) APM, and/or Splunk HEC (if desired)
     - Quick linux install of Splunks OTEL collector: 
         ```
             curl -sSL https://dl.signalfx.com/splunk-otel-collector.sh > /tmp/splunk-otel-collector.sh && \
@@ -100,11 +100,11 @@
 ## I've verified traces are going in to Splunk APM. Where should I see my Jenkins Instance in Splunk APM?
 - Splunk APM will show your Jenkins instance as the same value you have input in The Jenkins OpenTelemetry Plugin setup's `Service name` and `Service namespace` settings
 - Each of the Pipelines running in the Jenkins instance will be treated as a Service Endpoint in Splunk APM
-- Basic [Jenkins dashboards](./dashboards/) are included in this repository as a starting point
-    1. Filter by your environment variable
-    2. Filter by your Jenkins Service Name
-    3. Filter by your Pipeline (or * for all pipelines)
-    4. Edit Event Overlay to match detectors (I.E. Detector for build failures)
+- Basic [Jenkins dashboards](./dashboards/) are included in this repository as a starting point (both as [JSON for import](https://docs.splunk.com/Observability/data-visualization/dashboards/dashboards-import-export.html) and Terraform files)
+    1. Filter by your `environment` variable
+    2. Filter by your Jenkins `Service Name`
+    3. Filter by your Pipeline (or `*` for all pipelines)
+    4. Edit [Event Overlay](https://docs.splunk.com/Observability/metrics-and-metadata/view-data-events.html#view-events) to match detectors (I.E. Detector for build failures) and show markers on your dashboards
 ![Service Endpoint Dashboard](./images/Jenkins-Service-Endpoint-OTEL-APM.png)
 
 ## Using OTEL connectors and processors to get a better overview of the Overall Jenkins Health and specific metrics around individual steps over time
