@@ -12,7 +12,7 @@
 
 ## What does the OTEL config look like? 
 
-- **NOTE:** OTEL can be setup to send APM data to Splunk APM, Spunk Enterprise HEC, Splunk Log Observer, or all three! Config below is for sending to all three.
+- **NOTE:** OTEL can be setup to send APM data to Splunk APM and/or Splunk HEC. Configurations for both options are included in this repo.
 
 1. Config for [Splunk Otel Variables](./splunk-otel-collector.conf) (default location on install is `/etc/otel/collector/splunk-otel-collector.conf`)
 
