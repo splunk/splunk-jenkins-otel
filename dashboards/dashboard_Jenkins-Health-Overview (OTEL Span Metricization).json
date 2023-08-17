@@ -2,6 +2,7 @@
   "chartExports": [
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -15,6 +16,7 @@
           "colorScale": null,
           "colorScale2": null,
           "maximumPrecision": null,
+          "noDataOptions": null,
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 0,
@@ -53,6 +55,7 @@
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -66,6 +69,11 @@
           "colorScale": null,
           "colorScale2": null,
           "maximumPrecision": null,
+          "noDataOptions": {
+            "linkText": null,
+            "linkUrl": null,
+            "noDataMessage": null
+          },
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 0,
@@ -97,13 +105,14 @@
           "unitPrefix": "Metric"
         },
         "packageSpecifications": "",
-        "programText": "A = data('jenkins.run.status', filter=filter('environment', '*') and filter('service.name', '*'), rollup='count').sum(over='1d').sum().publish(label='A')",
+        "programText": "A = data('spans.count', filter=filter('environment', '*') and filter('service.name', '*')).sum(by=['sf_operation']).sum(over='1d').publish(label='A')",
         "relatedDetectorIds": [],
         "tags": null
       }
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -117,6 +126,7 @@
           "colorScale": null,
           "colorScale2": null,
           "maximumPrecision": null,
+          "noDataOptions": null,
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 0,
@@ -155,6 +165,7 @@
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -168,6 +179,11 @@
           "colorScale": null,
           "colorScale2": null,
           "maximumPrecision": null,
+          "noDataOptions": {
+            "linkText": null,
+            "linkUrl": null,
+            "noDataMessage": null
+          },
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 0,
@@ -199,13 +215,14 @@
           "unitPrefix": "Metric"
         },
         "packageSpecifications": "",
-        "programText": "A = data('jenkins.run.status', filter=filter('status.code', 'STATUS_CODE_ERROR') and filter('environment', '*') and filter('service.name', '*'), rollup='count').sum(over='1d').sum().publish(label='A')",
+        "programText": "A = data('spans.count', filter=filter('environment', '*') and filter('service.name', '*') and filter('sf_error', 'true')).sum(by=['sf_operation']).sum(over='1d').publish(label='A')",
         "relatedDetectorIds": [],
         "tags": null
       }
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -219,6 +236,7 @@
           "colorScale": null,
           "colorScale2": null,
           "maximumPrecision": null,
+          "noDataOptions": null,
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 0,
@@ -257,6 +275,7 @@
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -298,14 +317,48 @@
           },
           "includeZero": false,
           "legendOptions": {
-            "fields": null
+            "fields": [
+              {
+                "enabled": false,
+                "property": "status.code"
+              },
+              {
+                "enabled": true,
+                "property": "ci.pipeline.id"
+              },
+              {
+                "enabled": false,
+                "property": "sf_originatingMetric"
+              },
+              {
+                "enabled": true,
+                "property": "sf_metric"
+              },
+              {
+                "enabled": false,
+                "property": "jenkins.pipeline.step.name"
+              },
+              {
+                "enabled": false,
+                "property": "sf_error"
+              },
+              {
+                "enabled": true,
+                "property": "sf_operation"
+              }
+            ]
           },
           "lineChartOptions": {
             "showDataMarkers": false
           },
+          "noDataOptions": {
+            "linkText": null,
+            "linkUrl": null,
+            "noDataMessage": null
+          },
           "onChartLegendOptions": {
-            "dimensionInLegend": "status.code",
-            "showLegend": true
+            "dimensionInLegend": null,
+            "showLegend": false
           },
           "programOptions": {
             "disableSampling": false,
@@ -315,9 +368,19 @@
           },
           "publishLabelOptions": [
             {
-              "displayName": "A",
+              "displayName": "Failed",
               "label": "A",
-              "paletteIndex": null,
+              "paletteIndex": 4,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": null,
+              "valueUnit": null,
+              "yAxis": 0
+            },
+            {
+              "displayName": "Succeeded",
+              "label": "C",
+              "paletteIndex": 3,
               "plotType": null,
               "valuePrefix": null,
               "valueSuffix": null,
@@ -336,13 +399,14 @@
           "unitPrefix": "Metric"
         },
         "packageSpecifications": "",
-        "programText": "A = data('jenkins.run.status', filter=filter('environment', '*') and filter('service.name', '*'), rollup='count').sum(by=['status.code']).publish(label='A')",
+        "programText": "A = data('spans.count', filter=filter('sf_error', 'true') and filter('environment', '*') and filter('service.name', '*')).sum(by=['sf_error', 'sf_operation']).publish(label='A')\nC = data('spans.count', filter=filter('sf_error', 'false') and filter('environment', '*') and filter('service.name', '*')).sum(by=['sf_error', 'sf_operation']).publish(label='C')",
         "relatedDetectorIds": [],
         "tags": null
       }
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -356,6 +420,7 @@
           "colorScale": null,
           "colorScale2": null,
           "maximumPrecision": null,
+          "noDataOptions": null,
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 0,
@@ -394,6 +459,7 @@
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -407,6 +473,7 @@
           "colorScale": null,
           "colorScale2": null,
           "maximumPrecision": null,
+          "noDataOptions": null,
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 0,
@@ -445,6 +512,7 @@
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -458,6 +526,7 @@
           "colorScale": null,
           "colorScale2": null,
           "maximumPrecision": null,
+          "noDataOptions": null,
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 0,
@@ -496,6 +565,7 @@
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -509,6 +579,7 @@
           "colorScale": null,
           "colorScale2": null,
           "maximumPrecision": null,
+          "noDataOptions": null,
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 0,
@@ -547,6 +618,7 @@
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -593,6 +665,7 @@
           "lineChartOptions": {
             "showDataMarkers": false
           },
+          "noDataOptions": null,
           "onChartLegendOptions": {
             "dimensionInLegend": null,
             "showLegend": false
@@ -633,6 +706,7 @@
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -658,10 +732,43 @@
               {
                 "enabled": false,
                 "property": "sf_metric"
+              },
+              {
+                "enabled": true,
+                "property": "service.name"
+              },
+              {
+                "enabled": true,
+                "property": "jenkins.pipeline.step.name"
+              },
+              {
+                "enabled": true,
+                "property": "status.code"
+              },
+              {
+                "enabled": true,
+                "property": "span.kind"
+              },
+              {
+                "enabled": true,
+                "property": "jenkins.pipeline.step.type"
+              },
+              {
+                "enabled": true,
+                "property": "operation"
+              },
+              {
+                "enabled": true,
+                "property": "ci.pipeline.id"
               }
             ]
           },
           "maximumPrecision": null,
+          "noDataOptions": {
+            "linkText": null,
+            "linkUrl": null,
+            "noDataMessage": null
+          },
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 0,
@@ -670,7 +777,17 @@
           },
           "publishLabelOptions": [
             {
-              "displayName": "jenkins.pipeline.step.status - Sum by attributes.jenkins.pipeline.step.type - Sum(1h)",
+              "displayName": "jenkins.calls_total - Sum(1h) - Sum by jenkins.pipeline.step.name",
+              "label": "B",
+              "paletteIndex": null,
+              "plotType": null,
+              "valuePrefix": null,
+              "valueSuffix": null,
+              "valueUnit": null,
+              "yAxis": 0
+            },
+            {
+              "displayName": "jenkins.calls - Sum(1h) - Sum by jenkins.pipeline.step.name",
               "label": "A",
               "paletteIndex": null,
               "plotType": null,
@@ -692,13 +809,14 @@
           "unitPrefix": "Metric"
         },
         "packageSpecifications": "",
-        "programText": "A = data('jenkins.pipeline.step.status', filter=filter('environment', '*') and filter('service.name', '*')).sum(by=['attributes.jenkins.pipeline.step.type']).sum(over='1h').publish(label='A')",
+        "programText": "B = data('jenkins.calls_total').sum(over='1h').sum(by=['jenkins.pipeline.step.name']).publish(label='B')\nA = data('jenkins.calls').sum(over='1h').sum(by=['jenkins.pipeline.step.name']).publish(label='A')",
         "relatedDetectorIds": [],
         "tags": null
       }
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -724,10 +842,19 @@
               {
                 "enabled": false,
                 "property": "sf_metric"
+              },
+              {
+                "enabled": true,
+                "property": "jenkins.pipeline.step.name"
               }
             ]
           },
           "maximumPrecision": null,
+          "noDataOptions": {
+            "linkText": null,
+            "linkUrl": null,
+            "noDataMessage": null
+          },
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 0,
@@ -758,13 +885,14 @@
           "unitPrefix": "Metric"
         },
         "packageSpecifications": "",
-        "programText": "A = data('jenkins.pipeline.step.status', filter=filter('environment', '*') and filter('service.name', '*') and filter('status.code', 'STATUS_CODE_ERROR')).sum(by=['attributes.jenkins.pipeline.step.type']).sum(over='1h').publish(label='A')",
+        "programText": "A = data('jenkins.calls', filter=filter('status.code', 'STATUS_CODE_ERROR')).sum(over='1h').sum(by=['jenkins.pipeline.step.name']).top(count=10).publish(label='A')",
         "relatedDetectorIds": [],
         "tags": null
       }
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -892,6 +1020,7 @@
           "lineChartOptions": {
             "showDataMarkers": false
           },
+          "noDataOptions": null,
           "onChartLegendOptions": {
             "dimensionInLegend": null,
             "showLegend": false
@@ -1043,7 +1172,10 @@
       "eventOverlays": null,
       "filters": {
         "sources": null,
-        "time": null,
+        "time": {
+          "end": "Now",
+          "start": "-6h"
+        },
         "variables": [
           {
             "alias": "environment",
@@ -1058,7 +1190,7 @@
             "required": true,
             "restricted": false,
             "value": [
-              "Select Environment"
+              "*"
             ]
           },
           {
@@ -1074,22 +1206,22 @@
             "required": true,
             "restricted": false,
             "value": [
-              "Select your Service"
+              "*"
             ]
           }
         ]
       },
-      "groupId": "E8ePvoTA0AE",
       "id": "FBHnR2iA0AA",
       "lastUpdated": 0,
       "lastUpdatedBy": null,
       "maxDelayOverride": null,
       "name": "Jenkins-Health-Overview",
+      "permissions": null,
       "selectedEventOverlays": [],
       "tags": null
     }
   },
-  "hashCode": 941139386,
+  "hashCode": 867714956,
   "id": "FBHnR2iA0AA",
   "modelVersion": 1,
   "packageType": "DASHBOARD"

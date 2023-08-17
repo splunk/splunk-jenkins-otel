@@ -2,6 +2,7 @@
   "chartExports": [
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -39,6 +40,7 @@
             ]
           },
           "maximumPrecision": 4,
+          "noDataOptions": null,
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 0,
@@ -47,7 +49,7 @@
           },
           "publishLabelOptions": [
             {
-              "displayName": "Jobs Started (1d)",
+              "displayName": "Spans Started (1d)",
               "label": "A",
               "paletteIndex": 6,
               "plotType": null,
@@ -57,7 +59,7 @@
               "yAxis": 0
             },
             {
-              "displayName": "Jobs Failed (1d)",
+              "displayName": "Spans Failed (1d)",
               "label": "B",
               "paletteIndex": 13,
               "plotType": null,
@@ -96,14 +98,15 @@
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
-        "description": "Top pipelines by number of runs",
+        "description": "Top pipelines by number of Jobs",
         "id": "FAZXlLVAwAc",
         "lastUpdated": 0,
         "lastUpdatedBy": null,
-        "name": "Top pipelines by runs (1h)",
+        "name": "Top pipelines by Jobs (1h)",
         "options": {
           "colorBy": "Dimension",
           "colorScale2": null,
@@ -137,6 +140,11 @@
             ]
           },
           "maximumPrecision": null,
+          "noDataOptions": {
+            "linkText": null,
+            "linkUrl": null,
+            "noDataMessage": null
+          },
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 30000,
@@ -156,8 +164,8 @@
             }
           ],
           "refreshInterval": null,
-          "secondaryVisualization": "None",
-          "sortBy": "-value",
+          "secondaryVisualization": "Sparkline",
+          "sortBy": "",
           "time": {
             "range": 900000,
             "rangeEnd": 0,
@@ -167,13 +175,14 @@
           "unitPrefix": "Metric"
         },
         "packageSpecifications": "",
-        "programText": "filter_ = filter('sf_environment', '*') and filter('sf_service', '*') and filter('sf_kind', 'SERVER', 'CONSUMER') and (not filter('sf_dimensionalized', '*')) and (not filter('sf_serviceMesh', '*'))\nA = data('spans.count', filter=filter_, rollup='sum', extrapolation='last_value').sum(by=['sf_environment', 'sf_service', 'sf_operation', 'sf_httpMethod'], allow_missing=['sf_httpMethod']).sum(over='1h').mean(over='1m').top(count=10).publish(label='A')",
+        "programText": "filter_ = filter('sf_environment', '*') and filter('sf_service', '*') and filter('sf_operation', '*') and filter('sf_kind', 'SERVER', 'CONSUMER') and (not filter('sf_dimensionalized', '*')) and (not filter('sf_serviceMesh', '*'))\nA = data('spans.count', filter=filter_, rollup='sum', extrapolation='last_value').sum(by=['sf_environment', 'sf_service', 'sf_operation', 'sf_httpMethod'], allow_missing=['sf_httpMethod']).sum(over='1h').top(count=10).publish(label='A')",
         "relatedDetectorIds": [],
         "tags": null
       }
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -220,6 +229,7 @@
           "lineChartOptions": {
             "showDataMarkers": false
           },
+          "noDataOptions": null,
           "onChartLegendOptions": {
             "dimensionInLegend": null,
             "showLegend": false
@@ -280,6 +290,7 @@
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -296,6 +307,7 @@
               "paletteIndex": null
             }
           ],
+          "noDataOptions": null,
           "time": {
             "range": 900000,
             "rangeEnd": 0,
@@ -311,98 +323,7 @@
     },
     {
       "chart": {
-        "created": 0,
-        "creator": null,
-        "customProperties": {},
-        "description": "Total number of jobs started",
-        "id": "FAZX0GnA4AM",
-        "lastUpdated": 0,
-        "lastUpdatedBy": null,
-        "name": "Jobs Started Sumarry",
-        "options": {
-          "areaChartOptions": {
-            "showDataMarkers": true
-          },
-          "axes": [
-            {
-              "highWatermark": null,
-              "highWatermarkLabel": null,
-              "label": "",
-              "lowWatermark": null,
-              "lowWatermarkLabel": null,
-              "max": null,
-              "min": null
-            },
-            {
-              "highWatermark": null,
-              "highWatermarkLabel": null,
-              "label": "",
-              "lowWatermark": null,
-              "lowWatermarkLabel": null,
-              "max": null,
-              "min": null
-            }
-          ],
-          "axisPrecision": null,
-          "colorBy": "Dimension",
-          "defaultPlotType": "LineChart",
-          "eventPublishLabelOptions": [
-            {
-              "displayName": "Build Buttercup Workflow Error Rate",
-              "label": "D",
-              "paletteIndex": null
-            }
-          ],
-          "histogramChartOptions": {
-            "colorThemeIndex": 16
-          },
-          "includeZero": false,
-          "legendOptions": {
-            "fields": null
-          },
-          "lineChartOptions": {
-            "showDataMarkers": true
-          },
-          "onChartLegendOptions": {
-            "dimensionInLegend": "sf_metric",
-            "showLegend": true
-          },
-          "programOptions": {
-            "disableSampling": false,
-            "maxDelay": 0,
-            "minimumResolution": 10000,
-            "timezone": null
-          },
-          "publishLabelOptions": [
-            {
-              "displayName": "Requests/sec",
-              "label": "C",
-              "paletteIndex": 11,
-              "plotType": null,
-              "valuePrefix": null,
-              "valueSuffix": "requests/s",
-              "valueUnit": null,
-              "yAxis": 0
-            }
-          ],
-          "showEventLines": true,
-          "stacked": false,
-          "time": {
-            "range": 900000,
-            "rangeEnd": 0,
-            "type": "relative"
-          },
-          "type": "TimeSeriesChart",
-          "unitPrefix": "Metric"
-        },
-        "packageSpecifications": "",
-        "programText": "C = data('service.request.count', filter=filter('sf_environment', '*') and filter('sf_service', '*') and (not filter('sf_dimensionalized', '*')), rollup='sum').sum(by=['sf_service', 'sf_environment']).publish(label='C')\nD = alerts(detector_name='Build Buttercup Workflow Error Rate').publish(label='D')",
-        "relatedDetectorIds": [],
-        "tags": null
-      }
-    },
-    {
-      "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -410,7 +331,7 @@
         "id": "FAZX0GpA0AE",
         "lastUpdated": 0,
         "lastUpdatedBy": null,
-        "name": "Top endpoints by error rate (1h)",
+        "name": "Top Pipelines by error rate (1h)",
         "options": {
           "colorBy": "Dimension",
           "colorScale2": null,
@@ -444,6 +365,11 @@
             ]
           },
           "maximumPrecision": null,
+          "noDataOptions": {
+            "linkText": null,
+            "linkUrl": null,
+            "noDataMessage": null
+          },
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 30000,
@@ -483,8 +409,8 @@
             }
           ],
           "refreshInterval": null,
-          "secondaryVisualization": "None",
-          "sortBy": "-value",
+          "secondaryVisualization": "Sparkline",
+          "sortBy": "",
           "time": {
             "range": 900000,
             "rangeEnd": 0,
@@ -501,6 +427,7 @@
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -511,7 +438,7 @@
         "name": "Job Length by Pipeline",
         "options": {
           "areaChartOptions": {
-            "showDataMarkers": false
+            "showDataMarkers": true
           },
           "axes": [
             {
@@ -545,7 +472,12 @@
             "fields": null
           },
           "lineChartOptions": {
-            "showDataMarkers": false
+            "showDataMarkers": true
+          },
+          "noDataOptions": {
+            "linkText": null,
+            "linkUrl": null,
+            "noDataMessage": null
           },
           "onChartLegendOptions": {
             "dimensionInLegend": null,
@@ -569,7 +501,7 @@
               "yAxis": 0
             }
           ],
-          "showEventLines": false,
+          "showEventLines": true,
           "stacked": false,
           "time": {
             "range": 900000,
@@ -587,6 +519,7 @@
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -594,7 +527,7 @@
         "id": "FAZX1_PA4AQ",
         "lastUpdated": 0,
         "lastUpdatedBy": null,
-        "name": "Pipeline Details (1d)",
+        "name": "Pipeline Summary (1d)",
         "options": {
           "colorBy": "Dimension",
           "colorScale2": null,
@@ -624,6 +557,7 @@
             ]
           },
           "maximumPrecision": 4,
+          "noDataOptions": null,
           "programOptions": {
             "disableSampling": true,
             "maxDelay": 30000,
@@ -681,6 +615,7 @@
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -721,7 +656,12 @@
               }
             ]
           },
-          "maximumPrecision": 4,
+          "maximumPrecision": null,
+          "noDataOptions": {
+            "linkText": null,
+            "linkUrl": null,
+            "noDataMessage": null
+          },
           "programOptions": {
             "disableSampling": false,
             "maxDelay": 0,
@@ -741,8 +681,8 @@
             }
           ],
           "refreshInterval": null,
-          "secondaryVisualization": "None",
-          "sortBy": "-value",
+          "secondaryVisualization": "Sparkline",
+          "sortBy": "",
           "time": {
             "range": 3600000,
             "rangeEnd": 0,
@@ -759,6 +699,7 @@
     },
     {
       "chart": {
+        "autoDetectRelatedDetectorIds": [],
         "created": 0,
         "creator": null,
         "customProperties": {},
@@ -806,6 +747,7 @@
           "lineChartOptions": {
             "showDataMarkers": false
           },
+          "noDataOptions": null,
           "onChartLegendOptions": {
             "dimensionInLegend": null,
             "showLegend": false
@@ -875,70 +817,63 @@
           "column": 0,
           "height": 1,
           "row": 0,
-          "width": 4
+          "width": 5
         },
         {
           "chartId": "FAZXzyMA0AA",
-          "column": 8,
+          "column": 10,
           "height": 3,
           "row": 0,
-          "width": 4
-        },
-        {
-          "chartId": "FAZX1_PA4AQ",
-          "column": 4,
-          "height": 1,
-          "row": 0,
-          "width": 4
-        },
-        {
-          "chartId": "FAZX0GnA4AM",
-          "column": 0,
-          "height": 1,
-          "row": 1,
-          "width": 4
+          "width": 2
         },
         {
           "chartId": "FAZX04BA0AA",
-          "column": 4,
+          "column": 5,
+          "height": 1,
+          "row": 0,
+          "width": 5
+        },
+        {
+          "chartId": "FAZX1_PA4AQ",
+          "column": 0,
           "height": 1,
           "row": 1,
-          "width": 4
+          "width": 5
         },
         {
           "chartId": "FAZXm7dAwAQ",
-          "column": 4,
+          "column": 5,
           "height": 1,
-          "row": 2,
-          "width": 4
+          "row": 1,
+          "width": 5
         },
         {
           "chartId": "FAZg9_WA0AA",
           "column": 0,
           "height": 1,
           "row": 2,
-          "width": 4
+          "width": 5
+        },
+        {
+          "chartId": "FAZX0GpA0AE",
+          "column": 5,
+          "height": 1,
+          "row": 2,
+          "width": 5
         },
         {
           "chartId": "FAZXlLVAwAc",
           "column": 0,
           "height": 1,
           "row": 3,
-          "width": 4
+          "width": 5
         },
         {
           "chartId": "FAZcT6nA4AA",
-          "column": 4,
+          "column": 5,
           "height": 1,
           "row": 3,
-          "width": 4
-        },
-        {
-          "chartId": "FAZX0GpA0AE",
-          "column": 8,
-          "height": 1,
-          "row": 3,
-          "width": 4
+          "width": 5
         }
       ],
       "created": 0,
@@ -976,7 +911,7 @@
         "sources": null,
         "time": {
           "end": "Now",
-          "start": "-4h"
+          "start": "-6h"
         },
         "variables": [
           {
@@ -992,7 +927,7 @@
             "required": true,
             "restricted": false,
             "value": [
-              "Select Environment"
+              "*"
             ]
           },
           {
@@ -1008,7 +943,7 @@
             "required": true,
             "restricted": false,
             "value": [
-              "Select Service"
+              "*"
             ]
           },
           {
@@ -1024,32 +959,22 @@
             "required": false,
             "restricted": false,
             "value": [
-              "Select Pipeline"
+              "*"
             ]
           }
         ]
       },
-      "groupId": "E8ePvoTA0AE",
       "id": "FAZX1_PA4AU",
       "lastUpdated": 0,
       "lastUpdatedBy": null,
       "maxDelayOverride": null,
       "name": "Jenkins-APM-Service-Endpoints",
-      "selectedEventOverlays": [
-        {
-          "eventSignal": {
-            "detectorId": null,
-            "eventSearchText": "*Select detector*",
-            "eventType": "eventTimeSeries"
-          },
-          "overlayId": null,
-          "sources": []
-        }
-      ],
+      "permissions": null,
+      "selectedEventOverlays": [],
       "tags": null
     }
   },
-  "hashCode": -550392347,
+  "hashCode": -833068008,
   "id": "FAZX1_PA4AU",
   "modelVersion": 1,
   "packageType": "DASHBOARD"
